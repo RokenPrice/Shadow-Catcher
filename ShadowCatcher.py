@@ -124,105 +124,125 @@ def setupscenes():
 
 def setcomp():
     #Switch on nodes
+    global bgon
+    global imageon
+    global firstrun
+    global background_node
+    global image_node
+    global mix_node
+    global comp_node_main
+    global main_node
+    global alpha_node
     bpy.context.scene.use_nodes = True
     comptree = bpy.context.scene.node_tree
     complinks = comptree.links
-    
-    # clear default nodes
-    for node in comptree.nodes:
-        comptree.nodes.remove(node)
-    
-    # create input image node
-    main_node = comptree.nodes.new(type='CompositorNodeRLayers')
-    main_node.location = 0,0
-    main_node.scene = bpy.data.scenes['Scene']
-    main_node.layer="Main"
+    if firstrun is True:
+        comptree = bpy.context.scene.node_tree
+        complinks = comptree.links
+        
+        # clear default nodes
+        for node in comptree.nodes:
+            comptree.nodes.remove(node)
+        
+        # create input image node
+        main_node = comptree.nodes.new(type='CompositorNodeRLayers')
+        main_node.location = 0,0
+        main_node.scene = bpy.data.scenes['Scene']
+        main_node.layer="Main"
 
-    subtract_node = comptree.nodes.new(type='CompositorNodeMixRGB')
-    subtract_node.location = 400,0
-    subtract_node.blend_type = 'SUBTRACT'
-    
-    mix_node = comptree.nodes.new(type = 'CompositorNodeMixRGB')
-    mix_node.location = 1100,-100
-    mix_node.blend_type = 'MULTIPLY'
-    mix_node.use_custom_color = True
-    mix_node.color = (0, 153, 0)
-    
-    invert_node = comptree.nodes.new(type = 'CompositorNodeInvert')
-    invert_node.location = 500,0
-    
-    RGB1_node = comptree.nodes.new(type = 'CompositorNodeCurveRGB')
-    RGB1_node.location = 600,0
-    RGB1_node.use_custom_color = True
-    RGB1_node.color = (0, 153, 0)
-    RGB2_node = comptree.nodes.new(type = 'CompositorNodeCurveRGB')
-    RGB2_node.location = 850,0
-    RGB2_node.use_custom_color = True
-    RGB2_node.color = (0, 153, 0)    
-    
-    shadow_node = comptree.nodes.new(type='CompositorNodeRLayers')
-    shadow_node.location = 100,100
-    shadow_node.scene = bpy.data.scenes['Scene']
-    shadow_node.layer="Shadow"
-    
-    clean_node = comptree.nodes.new(type='CompositorNodeRLayers')
-    clean_node.location = 200,200
-    clean_node.scene = bpy.data.scenes['Scene']
-    clean_node.layer="Shadow Clean"
-    
-    background_node = comptree.nodes.new(type='CompositorNodeRLayers')
-    background_node.location = -100,200
-    background_node.scene = bpy.data.scenes['Scene Background']
-    background_node.layer="Background"
-    background_node.use_custom_color = True
-    background_node.color = (0, 153, 0)
-    
-    image_node = comptree.nodes.new(type='CompositorNodeImage')
-    image_node.location = -300,200
-    image_node.use_custom_color = True
-    image_node.color = (0, 153, 0)
-    
-    alpha_node = comptree.nodes.new(type = 'CompositorNodeAlphaOver')
-    alpha_node.location = 1300,100
-    
-    # create output node
-    comp_node_main = comptree.nodes.new('CompositorNodeComposite')   
-    comp_node_main.location = 1500,0
-    # link nodes
-    link = complinks.new(shadow_node.outputs[0], subtract_node.inputs[2])
-    link = complinks.new(clean_node.outputs[0], subtract_node.inputs[1])
-    link = complinks.new(subtract_node.outputs[0], invert_node.inputs[1])
-    link = complinks.new(invert_node.outputs[0], RGB1_node.inputs[1])    
-    link = complinks.new(RGB1_node.outputs[0], RGB2_node.inputs[1])
-    link = complinks.new(RGB2_node.outputs[0], mix_node.inputs[2])
+        subtract_node = comptree.nodes.new(type='CompositorNodeMixRGB')
+        subtract_node.location = 400,0
+        subtract_node.blend_type = 'SUBTRACT'
+        
+        mix_node = comptree.nodes.new(type = 'CompositorNodeMixRGB')
+        mix_node.location = 1100,-100
+        mix_node.blend_type = 'MULTIPLY'
+        mix_node.use_custom_color = True
+        mix_node.color = (0, 153, 0)
+        
+        invert_node = comptree.nodes.new(type = 'CompositorNodeInvert')
+        invert_node.location = 500,0
+        
+        RGB1_node = comptree.nodes.new(type = 'CompositorNodeCurveRGB')
+        RGB1_node.location = 600,0
+        RGB1_node.use_custom_color = True
+        RGB1_node.color = (0, 153, 0)
+        RGB2_node = comptree.nodes.new(type = 'CompositorNodeCurveRGB')
+        RGB2_node.location = 850,0
+        RGB2_node.use_custom_color = True
+        RGB2_node.color = (0, 153, 0)    
+        
+        shadow_node = comptree.nodes.new(type='CompositorNodeRLayers')
+        shadow_node.location = 100,100
+        shadow_node.scene = bpy.data.scenes['Scene']
+        shadow_node.layer="Shadow"
+        
+        clean_node = comptree.nodes.new(type='CompositorNodeRLayers')
+        clean_node.location = 200,200
+        clean_node.scene = bpy.data.scenes['Scene']
+        clean_node.layer="Shadow Clean"
+        
+        background_node = comptree.nodes.new(type='CompositorNodeRLayers')
+        background_node.location = -100,200
+        background_node.scene = bpy.data.scenes['Scene Background']
+        background_node.layer="Background"
+        background_node.use_custom_color = True
+        background_node.color = (0, 153, 0)
+        
+        image_node = comptree.nodes.new(type='CompositorNodeImage')
+        image_node.location = -300,200
+        image_node.use_custom_color = True
+        image_node.color = (0, 153, 0)
+        
+        alpha_node = comptree.nodes.new(type = 'CompositorNodeAlphaOver')
+        alpha_node.location = 1300,100
+        
+        # create output node
+        comp_node_main = comptree.nodes.new('CompositorNodeComposite')   
+        comp_node_main.location = 1500,0
+        # link nodes
+        link = complinks.new(shadow_node.outputs[0], subtract_node.inputs[2])
+        link = complinks.new(clean_node.outputs[0], subtract_node.inputs[1])
+        link = complinks.new(subtract_node.outputs[0], invert_node.inputs[1])
+        link = complinks.new(invert_node.outputs[0], RGB1_node.inputs[1])    
+        link = complinks.new(RGB1_node.outputs[0], RGB2_node.inputs[1])
+        link = complinks.new(RGB2_node.outputs[0], mix_node.inputs[2])
+        link = complinks.new(mix_node.outputs[0], alpha_node.inputs[1])
+        link = complinks.new(main_node.outputs[0], alpha_node.inputs[2])
+        link = complinks.new(alpha_node.outputs[0], comp_node_main.inputs[0])
     if bpy.data.scenes["Scene"].background is True:
         link = complinks.new(background_node.outputs[0], mix_node.inputs[1])
+        bgon = True
+        imageon = False
     if bpy.data.scenes["Scene"].image is True:
         link = complinks.new(image_node.outputs[0], mix_node.inputs[1])
-    link = complinks.new(mix_node.outputs[0], alpha_node.inputs[1])
-    link = complinks.new(main_node.outputs[0], alpha_node.inputs[2])
-    link = complinks.new(alpha_node.outputs[0], comp_node_main.inputs[0])
+        imageon = True
+        bgon = False
     if bpy.data.scenes["Scene"].enable is False:
         link = complinks.new(main_node.outputs[0], comp_node_main.inputs[0])
+    else:
+        link = complinks.new(alpha_node.outputs[0], comp_node_main.inputs[0])
     if bpy.data.scenes["Scene"].background is False:
-        link = complinks.remove(background_node.outputs[0].links[0])
+        if bgon is True:
+            link = complinks.remove(background_node.outputs[0].links[0])
+            bgon = False
         mix_node.inputs[1].default_value[3]=0
-    if bpy.data.scenes["Scene"].background is False:
-        link = complinks.remove(background_node.outputs[0].links[0])
-        mix_node.inputs[1].default_value[3]=0  
     if bpy.data.scenes["Scene"].image is False:
-        link = complinks.remove(image_node.outputs[0].links[0])
-        mix_node.inputs[1].default_value[3]=0      
+        if imageon is True:
+            link = complinks.remove(image_node.outputs[0].links[0])
+            imageon = False
+        mix_node.inputs[1].default_value[3]=0
     return(complinks)
 
 def shadowtoggle(self, context):
     global firstrun
+    global bgon
+    global imageon
     if firstrun is True:
         if bpy.data.scenes["Scene"].enable is True:
             setupscenes()
-            firstrun = False
-
     setcomp()
+    firstrun = False
     bpy.data.scenes["Scene"].render.layers["Shadow"].use = bpy.data.scenes["Scene"].enable
     bpy.data.scenes["Scene"].render.layers["Shadow Clean"].use = bpy.data.scenes["Scene"].enable
     bpy.data.scenes["Scene"].cycles.film_transparent = bpy.data.scenes["Scene"].enable
@@ -232,24 +252,30 @@ def shadowtoggle(self, context):
         bpy.data.scenes["Scene Background"].render.layers["Background"].use = False
     else:
         bpy.data.scenes["Scene Background"].render.layers["Background"].use = bpy.data.scenes["Scene"].background
-
     return
 
 def backgroundtoggle(self, context):
+    global bgon
+    global imageon
     bpy.data.scenes["Scene Background"].render.layers["Background"].use = bpy.data.scenes["Scene"].background
     bpy.data.scenes["Scene Background"].cycles.film_transparent = abs(bpy.data.scenes["Scene"].background-1)
     if bpy.data.scenes["Scene"].image is True:
-        bpy.data.scenes["Scene"].image = abs(bpy.data.scenes["Scene"].background-1)
+        bpy.data.scenes["Scene"].image =  abs(bpy.data.scenes["Scene"].background-1)
     setcomp()
     return 
 
 def imagetoggle(self, context):
+    global bgon
+    global imageon
     if bpy.data.scenes["Scene"].background is True:
         bpy.data.scenes["Scene"].background = abs(bpy.data.scenes["Scene"].image-1)
     setcomp()
+    return
 
 def register():
     global firstrun
+    global bgon
+    global imageon
     firstrun = True
     bpy.types.Scene.enable = bpy.props.BoolProperty(
         name="Enable or Disable", 
@@ -271,6 +297,8 @@ def register():
         default=0,
         update = imagetoggle
         )
+    bgon = False
+    imageon = False
     bpy.utils.register_class(CyclesShadowCatcher)
 
 def unregister():

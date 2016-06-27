@@ -36,6 +36,27 @@ class CyclesShadowCatcher(bpy.types.Panel):
         row = layout.row()
         row.prop(scene, "image")
 
+        row = layout.row()
+        row.prop(scene, "backgroundimage")
+    
+class ShadowCatcherComp(bpy.types.Panel):
+    bl_label = "Shadow Catcher"
+    bl_idname = "COMP_Shadow"
+    bl_space_type = 'IMAGE_EDITOR'
+    bl_region_type = 'TOOLS'
+    bl_category = "Shadow Catcher"
+    
+    def draw(self, context):
+    
+        scene = context.scene
+        layout = self.layout
+
+        row = layout.row()
+        row.prop(scene, "strength")
+
+        row = layout.row()
+        row.prop(scene, "blur")
+
 def setupscenes():
     def_scene = bpy.context.scene
     def_scene.name = "Scene"
@@ -135,6 +156,7 @@ def setcomp():
     global alpha_node
     global blur_node
     global value_node
+    global bgim
     bpy.context.scene.use_nodes = True
     comptree = bpy.context.scene.node_tree
     complinks = comptree.links
@@ -241,6 +263,8 @@ def setcomp():
             link = complinks.remove(image_node.outputs[0].links[0])
             imageon = False
         mix_node.inputs[1].default_value[3]=0
+    if bgim is not False:
+        image_node.image = bgim
     return(complinks)
 
 def shadowtoggle(self, context):
@@ -281,10 +305,31 @@ def imagetoggle(self, context):
     setcomp()
     return
 
+def getbackground(self, context):
+    global bgim
+    bgload = bpy.data.scenes["Scene"].backgroundimage
+    bgim = bpy.data.images.load(filepath = bgload)
+    if bgim is not False:
+        image_node.image = bgim
+    return
+
+def setstrength(self, context):
+    global value_node
+    global image_node
+    value_node.outputs[0].default_value = bpy.data.scenes["Scene"].strength
+    return
+
+def setblur(self, context):
+    global blur_node
+    blur_node.size_x = bpy.data.scenes["Scene"].blur
+    blur_node.size_y = bpy.data.scenes["Scene"].blur
+    return
+    
 def register():
     global firstrun
     global bgon
     global imageon
+    global bgim
     firstrun = True
     bpy.types.Scene.enable = bpy.props.BoolProperty(
         name="Enable or Disable", 
@@ -300,18 +345,47 @@ def register():
         update = backgroundtoggle
         )
         
+    bpy.types.Scene.backgroundimage = bpy.props.StringProperty(
+        name="Select Background",
+        description="Select Background",
+        subtype="FILE_PATH",
+        update=getbackground
+        )
+        
     bpy.types.Scene.image = bpy.props.BoolProperty(
         name="Enable or Disable image", 
         description="Enable image", 
         default=0,
         update = imagetoggle
         )
+        
+    bpy.types.Scene.strength = bpy.props.FloatProperty(
+        name="Shadow Strength",
+        description="Shadow Strength",
+        default=1,
+        min=0,
+        max=100,
+        update = setstrength
+        )
+
+    bpy.types.Scene.blur = bpy.props.FloatProperty(
+        name="Shadow blur",
+        description="Shadow blur",
+        default=0,
+        min=0,
+        max=30,
+        update = setblur
+        )
+
     bgon = False
     imageon = False
     bpy.utils.register_class(CyclesShadowCatcher)
+    bpy.utils.register_class(ShadowCatcherComp)
+    bgim=False
 
 def unregister():
     bpy.utils.unregister_class(CyclesShadowCatcher)
+    bpy.utils.unregister_class(ShadowCatcherComp)    
 
 if __name__ == "__main__":
     register()
